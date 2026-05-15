@@ -1,0 +1,195 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+
+public class AdminFlowUI extends JFrame {
+
+    JLabel titleLabel;
+
+    JButton inventoryButton;
+    JButton ordersButton;
+    JButton statusButton;
+    JButton logoutButton;
+
+    public AdminFlowUI() {
+
+        setTitle("Admin Dashboard");
+
+        setSize(1000, 650);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        setLocationRelativeTo(null);
+
+        setLayout(new BorderLayout(10, 10));
+
+        // ================= MAIN COLORS =================
+        Color backgroundColor = Color.WHITE;
+
+        Color topBarColor = new Color(245, 245, 245);
+
+        // ================= TOP PANEL =================
+        JPanel topPanel = new JPanel(new BorderLayout());
+
+        topPanel.setBackground(topBarColor);
+
+        topPanel.setBorder(new EmptyBorder(15, 25, 15, 25));
+
+        titleLabel = new JLabel("ADMIN DASHBOARD");
+
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+
+        JLabel adminLabel = new JLabel("Administrator");
+
+        adminLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        topPanel.add(titleLabel, BorderLayout.WEST);
+
+        topPanel.add(adminLabel, BorderLayout.EAST);
+
+        // ================= MAIN PANEL =================
+        JPanel mainPanel = new JPanel(new GridLayout(2, 2, 25, 25));
+
+        mainPanel.setBackground(backgroundColor);
+
+        mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+
+        // ================= BUTTONS =================
+        inventoryButton = createCardButton(
+                "Manage Inventory",
+                "Add, remove, and update products"
+        );
+
+        ordersButton = createCardButton(
+                "View Orders",
+                "See all customer orders"
+        );
+
+        statusButton = createCardButton(
+                "Update Order Status",
+                "Change pending or completed orders"
+        );
+
+        logoutButton = createCardButton(
+                "Logout",
+                "Exit the admin dashboard"
+        );
+
+        // ================= BUTTON ACTIONS =================
+        inventoryButton.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Inventory Management Page"
+                )
+        );
+
+        ordersButton.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Orders Page"
+                )
+        );
+
+        statusButton.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Update Order Status Page"
+                )
+        );
+
+        logoutButton.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Logged Out"
+                )
+        );
+
+        // ================= ADD BUTTONS =================
+        mainPanel.add(inventoryButton);
+
+        mainPanel.add(ordersButton);
+
+        mainPanel.add(statusButton);
+
+        mainPanel.add(logoutButton);
+
+        // ================= FOOTER =================
+        JPanel bottomPanel = new JPanel();
+
+        bottomPanel.setBackground(topBarColor);
+
+        bottomPanel.setBorder(new EmptyBorder(10, 10, 15, 10));
+
+        JLabel footer = new JLabel("Donut Shop Management System");
+
+        footer.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        bottomPanel.add(footer);
+
+        // ================= FRAME ADD =================
+        add(topPanel, BorderLayout.NORTH);
+
+        add(mainPanel, BorderLayout.CENTER);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        setVisible(true);
+    }
+
+    // ================= CARD BUTTON =================
+    private JButton createCardButton(String title, String subtitle) {
+
+        JButton button = new JButton();
+
+        button.setLayout(new BorderLayout());
+
+        button.setFocusPainted(false);
+
+        button.setBackground(new Color(250, 250, 250));
+
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                        new Color(220, 220, 220)
+                ),
+                new EmptyBorder(20, 20, 20, 20)
+        ));
+
+        JPanel content = new JPanel();
+
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+
+        content.setOpaque(false);
+
+        JLabel titleLabel = new JLabel(title);
+
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JLabel subtitleLabel = new JLabel(
+                "<html><body style='width:200px'>" +
+                        subtitle +
+                        "</body></html>"
+        );
+
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        subtitleLabel.setForeground(Color.GRAY);
+
+        content.add(titleLabel);
+
+        content.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        content.add(subtitleLabel);
+
+        button.add(content, BorderLayout.CENTER);
+
+        return button;
+    }
+
+    // ================= MAIN =================
+    public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(() -> {
+            new AdminFlowUI();
+        });
+    }
+}
