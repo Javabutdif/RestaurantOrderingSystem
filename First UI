@@ -1,0 +1,410 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.print.PrinterException;
+import java.util.HashMap;
+
+public class SimpleDonutUI extends JFrame {
+
+    CardLayout cardLayout = new CardLayout();
+    JPanel mainPanel = new JPanel(cardLayout);
+
+    JPanel cartItemsPanel;
+
+    JLabel totalLabel = new JLabel("Total: ₱0");
+    JLabel cartLabel = new JLabel("Cart Items: 0");
+
+    JTextArea receiptArea = new JTextArea();
+
+    HashMap<String, Integer> cart = new HashMap<>();
+    HashMap<String, Integer> prices = new HashMap<>();
+
+    public SimpleDonutUI() {
+
+        setTitle("Donut Ordering System");
+        setSize(1000, 650);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
+
+        // Prices
+        prices.put("Classic Donut", 45);
+        prices.put("Chocolate Donut", 55);
+        prices.put("Strawberry Donut", 60);
+        prices.put("Matcha Donut", 70);
+
+        // Pages
+        mainPanel.add(homePage(), "HOME");
+        mainPanel.add(cartPage(), "CART");
+
+        add(topPanel(), BorderLayout.NORTH);
+        add(mainPanel, BorderLayout.CENTER);
+        add(bottomPanel(), BorderLayout.SOUTH);
+
+        setVisible(true);
+    }
+
+    // ================= TOP PANEL =================
+    private JPanel topPanel() {
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        panel.setBorder(new EmptyBorder(15, 25, 15, 25));
+        panel.setBackground(new Color(245, 245, 245));
+
+        JLabel title = new JLabel("Donut Shop");
+        title.setFont(new Font("Arial", Font.BOLD, 28));
+
+        cartLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        panel.add(title, BorderLayout.WEST);
+        panel.add(cartLabel, BorderLayout.EAST);
+
+        return panel;
+    }
+
+    // ================= HOME PAGE =================
+    private JPanel homePage() {
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(Color.WHITE);
+
+        JPanel panel = new JPanel(new GridLayout(2, 2, 25, 25));
+
+        panel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        panel.setBackground(Color.WHITE);
+
+        panel.add(createDonutPanel("Classic Donut"));
+        panel.add(createDonutPanel("Chocolate Donut"));
+        panel.add(createDonutPanel("Strawberry Donut"));
+        panel.add(createDonutPanel("Matcha Donut"));
+
+        wrapper.add(panel);
+
+        return wrapper;
+    }
+
+    // ================= DONUT PANEL =================
+    private JPanel createDonutPanel(String name) {
+
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+
+        panel.setPreferredSize(new Dimension(300, 180));
+
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                new EmptyBorder(20, 20, 20, 20)
+        ));
+
+        panel.setBackground(new Color(250, 250, 250));
+
+        JLabel label = new JLabel(
+                "<html><h2>" + name + "</h2>" +
+                        "<p>Price: ₱" + prices.get(name) + "</p></html>"
+        );
+
+        JButton addButton = new JButton("Add to Cart");
+
+        addButton.setFocusPainted(false);
+        addButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+        addButton.addActionListener(e -> {
+
+            cart.put(name, cart.getOrDefault(name, 0) + 1);
+
+            updateCart();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    name + " added to cart."
+            );
+        });
+
+        panel.add(label, BorderLayout.CENTER);
+        panel.add(addButton, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    // ================= CART PAGE =================
+    private JPanel cartPage() {
+
+        JPanel panel = new JPanel(new GridLayout(1, 2, 20, 20));
+
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.setBackground(Color.WHITE);
+
+        // ================= LEFT SIDE =================
+        JPanel leftPanel = new JPanel(new BorderLayout(15, 15));
+
+        leftPanel.setBackground(Color.WHITE);
+
+        cartItemsPanel = new JPanel();
+
+        cartItemsPanel.setLayout(new BoxLayout(cartItemsPanel, BoxLayout.Y_AXIS));
+        cartItemsPanel.setBackground(Color.WHITE);
+
+        JScrollPane cartScroll = new JScrollPane(cartItemsPanel);
+
+        cartScroll.setBorder(
+                BorderFactory.createTitledBorder("Shopping Cart")
+        );
+
+        JButton checkoutButton = new JButton("Place Order & Print Receipt");
+
+        checkoutButton.setFont(new Font("Arial", Font.BOLD, 15));
+
+        checkoutButton.addActionListener(e -> {
+
+            if (cart.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Cart is empty."
+                );
+
+            } else {
+
+                generateReceipt();
+
+                try {
+
+                    receiptArea.print();
+
+                } catch (PrinterException ex) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Printing Failed."
+                    );
+                }
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Order Placed Successfully!"
+                );
+
+                cart.clear();
+
+                updateCart();
+            }
+        });
+
+        JPanel bottom = new JPanel(new BorderLayout());
+
+        bottom.setBackground(Color.WHITE);
+
+        totalLabel.setFont(new Font("Arial", Font.BOLD, 22));
+
+        bottom.add(totalLabel, BorderLayout.WEST);
+        bottom.add(checkoutButton, BorderLayout.EAST);
+
+        leftPanel.add(cartScroll, BorderLayout.CENTER);
+        leftPanel.add(bottom, BorderLayout.SOUTH);
+
+        // ================= RIGHT SIDE =================
+        JPanel rightPanel = new JPanel(new BorderLayout());
+
+        rightPanel.setBackground(Color.WHITE);
+
+        JLabel receiptTitle = new JLabel("Soft Copy Receipt");
+
+        receiptTitle.setFont(new Font("Arial", Font.BOLD, 20));
+
+        receiptArea.setEditable(false);
+
+        receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+
+        receiptArea.setMargin(new Insets(10, 10, 10, 10));
+
+        JScrollPane receiptScroll = new JScrollPane(receiptArea);
+
+        receiptScroll.setBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY)
+        );
+
+        rightPanel.add(receiptTitle, BorderLayout.NORTH);
+        rightPanel.add(receiptScroll, BorderLayout.CENTER);
+
+        panel.add(leftPanel);
+        panel.add(rightPanel);
+
+        return panel;
+    }
+
+    // ================= UPDATE CART =================
+    private void updateCart() {
+
+        cartItemsPanel.removeAll();
+
+        int total = 0;
+        int count = 0;
+
+        for (String item : cart.keySet()) {
+
+            int qty = cart.get(item);
+
+            int subtotal = qty * prices.get(item);
+
+            total += subtotal;
+            count += qty;
+
+            JPanel itemPanel = new JPanel(new BorderLayout());
+
+            itemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+            itemPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+            itemPanel.setBackground(new Color(248, 248, 248));
+
+            JLabel itemLabel = new JLabel(
+                    item + " x" + qty
+            );
+
+            JLabel priceLabel = new JLabel(
+                    "₱" + subtotal
+            );
+
+            itemLabel.setFont(new Font("Arial", Font.PLAIN, 15));
+            priceLabel.setFont(new Font("Arial", Font.BOLD, 15));
+
+            itemPanel.add(itemLabel, BorderLayout.WEST);
+            itemPanel.add(priceLabel, BorderLayout.EAST);
+
+            cartItemsPanel.add(itemPanel);
+            cartItemsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+
+        totalLabel.setText("Total: ₱" + total);
+
+        cartLabel.setText("Cart Items: " + count);
+
+        cartItemsPanel.revalidate();
+        cartItemsPanel.repaint();
+    }
+
+    // ================= GENERATE RECEIPT =================
+    private void generateReceipt() {
+
+        StringBuilder receipt = new StringBuilder();
+
+        receipt.append("            DOUGH & CO\n");
+        receipt.append("      Donut Ordering System\n");
+        receipt.append("====================================\n");
+
+        receipt.append("TRANS TYPE           SALE\n");
+        receipt.append("DATE                 ")
+                .append(java.time.LocalDate.now())
+                .append("\n");
+
+        receipt.append("TIME                 ")
+                .append(java.time.LocalTime.now()
+                        .withNano(0))
+                .append("\n");
+
+        receipt.append("====================================\n");
+
+        int total = 0;
+
+        for (String item : cart.keySet()) {
+
+            int qty = cart.get(item);
+
+            int subtotal = qty * prices.get(item);
+
+            total += subtotal;
+
+            receipt.append(item).append("\n");
+
+            receipt.append("QTY: ")
+                    .append(qty)
+                    .append("\n");
+
+            receipt.append("PRICE: ₱")
+                    .append(prices.get(item))
+                    .append("\n");
+
+            receipt.append("SUBTOTAL: ₱")
+                    .append(subtotal)
+                    .append("\n");
+
+            receipt.append("------------------------------------\n");
+        }
+
+        receipt.append("\n");
+
+        receipt.append("AMOUNT\n");
+        receipt.append("₱").append(total).append("\n");
+
+        receipt.append("\n");
+
+        receipt.append("----------- APPROVED -----------\n");
+
+        receipt.append("\n");
+
+        receipt.append("   THANK YOU FOR YOUR ORDER!\n");
+        receipt.append(" PLEASE RETAIN THIS RECEIPT.\n");
+
+        receipt.append("\n");
+        receipt.append("        CUSTOMER COPY\n");
+
+        receiptArea.setText(receipt.toString());
+
+        // Receipt style
+        receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 15));
+
+        receiptArea.setBackground(Color.WHITE);
+
+        receiptArea.setForeground(Color.BLACK);
+
+        receiptArea.setMargin(new Insets(20, 20, 20, 20));
+    }
+
+    // ================= BOTTOM PANEL =================
+    private JPanel bottomPanel() {
+
+        JPanel panel = new JPanel();
+
+        panel.setBorder(new EmptyBorder(10, 10, 15, 10));
+        panel.setBackground(new Color(245, 245, 245));
+
+        JButton homeButton = new JButton("Home");
+        JButton cartButton = new JButton("Cart");
+
+        JButton[] buttons = {homeButton, cartButton};
+
+        for (JButton button : buttons) {
+
+            button.setPreferredSize(new Dimension(140, 40));
+
+            button.setFocusPainted(false);
+
+            button.setFont(new Font("Arial", Font.BOLD, 14));
+        }
+
+        homeButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "HOME");
+        });
+
+        cartButton.addActionListener(e -> {
+
+            updateCart();
+
+            cardLayout.show(mainPanel, "CART");
+        });
+
+        panel.add(homeButton);
+        panel.add(Box.createRigidArea(new Dimension(15, 0)));
+        panel.add(cartButton);
+
+        return panel;
+    }
+
+    // ================= MAIN =================
+    public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(() -> {
+            new SimpleDonutUI();
+        });
+    }
+}
